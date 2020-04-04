@@ -38,13 +38,9 @@ void TcpConnectorTo::Connect()
     _channel.reset(new Channel(_reactor,fd));
     _channel->SetReadCallback(std::bind(&TcpConnectorTo::handleReadEvent,this));
     _channel->SetWriteCallback(std::bind(&TcpConnectorTo::handleWriteEvent,this));
-#ifdef __APPLE__
-    _channel->SetCloseCallback(std::bind(&TcpConnectorTo::handleCloseEvent,this));
-    _channel->SetErrorCallback(std::bind(&TcpConnectorTo::handleErrorEvent,this));
-#elif __linux__
     _channel->SetErrorCallback(std::bind(&TcpConnectorTo::handleErrorEvent,this));
     _channel->SetCloseCallback(std::bind(&TcpConnectorTo::handleCloseEvent,this));
-#endif
+
     _connected = false;
     _reachable = true;
     LOGD<<"now "<<Timestamp::Now().Epoch()/PerMiscroSeconds;

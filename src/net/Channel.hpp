@@ -4,17 +4,11 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-#ifdef __APPLE__
-#include <sys/event.h>
-static const int READ_EVENT = EVFILT_READ;
-static const int WRITE_EVENT = EVFILT_WRITE;
-static const int NONE_EVENT = 0;
-#elif __linux__
 #include <sys/epoll.h>
 static const int READ_EVENT = EPOLLIN;
 static const int WRITE_EVENT = EPOLLOUT;
 static const int NONE_EVENT = 0;
-#endif
+
 
 #include <atomic>
 #include <functional>
@@ -48,19 +42,10 @@ private:
     Callback       _closeCallback;
     Callback       _errorCallback;
 private:
-    void update();
-#ifdef __APPLE__
-    void        handleKevent();
-#elif __linux__
+    void        update();
     void        handleEpoll();
-#endif
 public:
-//todo 实现mac下的eventfd
-#ifdef __APPLE__
-    Channel(Reactor& reactor,int fd,int custom_event = READ_EVENT);
-#elif __linux__
     Channel(Reactor& reactor,int fd);
-#endif
     ~Channel();
 
     void SetReadCallback(ICallback cb){_readCallback = std::move(cb);}
@@ -82,11 +67,7 @@ public:
     void        DisableAll();
 
     void        SetRevent(int revent,uint16_t flag);
-#ifdef __APPLE__
-    void        FillKevent(struct kevent& evt);
-    void        TriggerUser();
-    void        ResetTrigger();
-#endif
+    
     bool        CanWrite();
 };
 

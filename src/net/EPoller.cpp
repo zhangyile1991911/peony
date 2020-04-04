@@ -2,8 +2,6 @@
 // Created by 张亦乐 on 2018/6/21.
 //
 
-
-#ifdef __linux__
 #include <sys/epoll.h>
 #include <memory.h>
 #include <cstdio>
@@ -125,4 +123,3 @@ void EPoller::autoResize(int num)
         _eventList.resize(_eventList.size()*2);
     }
 }
-#endif

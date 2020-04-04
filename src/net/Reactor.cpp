@@ -6,15 +6,10 @@
 #include <thread>
 #include <cassert>
 
-#ifdef __APPLE__
-#include "KQueuePoller.hpp"
-#include "NetTools.hpp"
-#include <fcntl.h>
-#elif __linux__
 #include <sys/eventfd.h>
 #include <string.h>
 #include "EPoller.hpp"
-#endif
+
 #include "Reactor.hpp"
 #include "Channel.hpp"
 #include "TimerQueue.hpp"

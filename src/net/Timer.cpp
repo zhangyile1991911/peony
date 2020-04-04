@@ -4,52 +4,13 @@
 #include <unistd.h>
 #include <ctime>
 #include <fcntl.h>
+#include <sys/timerfd.h>
 
 #include "net/Channel.hpp"
 #include "net/Reactor.hpp"
 
 #include "Timer.hpp"
 
-
-#ifdef __APPLE__
-int createTimerfd()
-{
-    int file = open("/dev/null",O_RDWR);
-    return dup(file);
-}
-Timer::Timer(Reactor &reactor):
-        _channel(reactor,createTimerfd(), EVFILT_TIMER),
-        _isOnce(false)
-{
-    _channel.SetReadCallback(std::bind(&Timer::handleReadCallback,this));
-}
-
-int Timer::handleReadCallback()
-{
-    if(_isOnce)
-    {
-        _channel.DisableRead();
-        _isOnce = false;
-    }
-    if(_callback)
-        _callback((*this));
-	return OK;
-}
-
-void Timer::ResetInterval(int64_t microseconds)
-{
-    _channel.EnableRead(microseconds);
-}
-
-void Timer::ResetOnce(int64_t microseconds)
-{
-    _isOnce = true;
-    _channel.EnableRead(microseconds);
-}
-#endif
-
-#ifdef __linux__
-#include <sys/timerfd.h>
 int createTimerfd()
 {
     int timerfd = ::timerfd_create(CLOCK_MONOTONIC,TFD_NONBLOCK | TFD_CLOEXEC);
@@ -102,7 +63,7 @@ void Timer::ResetOnce(int64_t microseconds)
         printf("timerfd_settime() error\n");
     }
 }
-#endif
+
 
 Timer::~Timer()
 {
