@@ -1,0 +1,11 @@
+syntax = "proto3";
+package ProtoMsg;
+
+message Packet
+{
+	string 	name = 1;
+	bytes 	content = 2;
+	uint64 	timestamp = 3;
+	uint32 	seq = 4;
+	int32 	code = 5;
+}
