@@ -1,6 +1,6 @@
-# peony
-C++ NETWORK FRAME
-directory structure
+# peony mordel C++ NETWORK FRAME
+# directory structure
+```
 ./
 ----peony
 	|
@@ -15,3 +15,4 @@ directory structure
 	----proto	生成protobuf C++协议类(generate proto file of cpp)
 	|
 	----test	单元测试(unit test)
+```
