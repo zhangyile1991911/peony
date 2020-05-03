@@ -15,7 +15,6 @@
 #include "TimerQueue.hpp"
 #include "plog/Log.h"
 
-#ifdef __linux__
 int createEventFD()
 {
 	int evtfd = ::eventfd(0,EFD_NONBLOCK|EFD_CLOEXEC);
@@ -27,19 +26,7 @@ int createEventFD()
 	LOGD<<"create event fd = "<<evtfd;
 	return evtfd;
 }
-#elif __APPLE__
-int createEventFD()
-{
-	int evtfd = open("/dev/null",O_RDWR);
-	set_noblock_fd(evtfd);
-	if(evtfd < 0)
-	{
-        LOGD<<"failed in createEventFD";
-		exit(-1);
-	}
-	return evtfd;
-}
-#endif
+
 using namespace std;
 Reactor::Reactor(int timeMs):
         _quit(false),
@@ -51,17 +38,6 @@ Reactor::Reactor(int timeMs):
         _timeMs(timeMs)
 {
     //printf("Reactor::Reactor in thread %ld\n",_threadId);
-#ifdef __APPLE__
-    _poller = new KQueuePoller();
-    _wakeupFD = createEventFD();
-    _wakeupChannel.reset(new Channel(*this,_wakeupFD,EVFILT_USER));
-    _wakeupChannel->SetReadCallback([this]()->int
-    {
-        LOGD<<"Reactor trigger user event to wakeup";
-        _wakeupChannel->ResetTrigger();
-        return 0;
-    });
-#elif __linux__
     _poller = new EPoller();
     _wakeupFD = createEventFD();
     _wakeupChannel.reset(new Channel(*this,_wakeupFD));
@@ -75,7 +51,6 @@ Reactor::Reactor(int timeMs):
         }
         return 0;
     });
-#endif
 }
 
 Reactor::~Reactor()
@@ -142,7 +117,6 @@ void Reactor::doTaskList()
 	_taskHandling = false;
 }
 
-#ifdef __linux__
 void Reactor::wakeup()
 {
 	uint64_t wakeSignal = 1;
@@ -153,12 +127,6 @@ void Reactor::wakeup()
 	}
 
 }
-#elif __APPLE__
-void Reactor::wakeup()
-{
-    _wakeupChannel->TriggerUser();
-}
-#endif
 
 void Reactor::AddTask(Callback task)
 {

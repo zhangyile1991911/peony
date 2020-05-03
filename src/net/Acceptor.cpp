@@ -78,14 +78,10 @@ int Acceptor::handleReadCallback()
     struct sockaddr_in remote_addr;
     socklen_t sin_size = sizeof(remote_addr);
 
-//TODO 应该尝试多次调用accept,一次性读完所有新连接
-#ifdef __linux__
+    //TODO 应该尝试多次调用accept,一次性读完所有新连接
     //将接受到的套接字,直接设置为非阻塞,只在linux内核高于3.53
     int newFD = ::accept4(_channelPtr->GetFd(),(struct sockaddr*)&remote_addr,&sin_size,SOCK_NONBLOCK);
-#elif __APPLE__
-    int newFD = accept(_channelPtr->GetFd(),(struct sockaddr*)&remote_addr,&sin_size);
-    set_noblock_fd(newFD);
-#endif
+
 
     if(newFD < 0)
     {

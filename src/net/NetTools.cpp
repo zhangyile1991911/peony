@@ -52,7 +52,7 @@ int create_socket()
     return sock;
 }
 
-#ifdef __linux__
+
 #include <sys/epoll.h>
 int create_epoll_fd()
 {
@@ -65,7 +65,7 @@ int create_epoll_fd()
     }
     return epoll_fd;
 }
-#endif
+
 
 void set_reuse_addr(int sockfd)
 {
